@@ -9,7 +9,7 @@ function deleteMessage(app, io) {
         if (!user || !channel) return res.status = 404
         const message = await Message.findByIdAndDelete(req.params.message)
         res.send(message)
-        io.to(channel._id).emit("messageDelete", message._id)
+        io.to(`${channel._id}`).emit("messageDelete", message._id)
     })
 }
 
