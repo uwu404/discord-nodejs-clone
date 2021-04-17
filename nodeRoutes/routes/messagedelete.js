@@ -1,6 +1,6 @@
 const User = require("../../models/user")
 const Message = require("../../models/message")
-const Channel = require()
+const Channel = require("../../models/channel")
 
 function deleteMessage(app, io) {
     app.delete("/channels/:channel/messages/:message", async (req, res) => {
