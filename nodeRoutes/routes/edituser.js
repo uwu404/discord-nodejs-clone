@@ -31,6 +31,7 @@ function editavatar(app) {
                 })
                 await image.save()
                 user.avatarURL = `${process.env.URL}/images/${user._id}.webp`
+                user.save()
             }
             grabage.delete()
         }
