@@ -26,7 +26,7 @@ function createserver(app) {
                 name: server._id + ".webp"
             })
             await image.save()
-            server.icon = `http://localhost:80/images/${server._id}.webp`
+            server.icon = `${process.env.URL}/images/${server._id}.webp`
         }
         const channel = new Channel({
             server: server._id,
