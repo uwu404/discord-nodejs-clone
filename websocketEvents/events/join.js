@@ -16,6 +16,11 @@ function join(socket) {
                 content: m.content,
                 timestamp: m.timestamp,
                 channel: m.channel,
+                attachment: {
+                    width: m.attachment?.width,
+                    height: m.attachment?.height,
+                    URL: m.attachment?.URL
+                },
                 author: { username: user.username, _id: user._id, avatarURL: user.avatarURL, tag: user.tag }
             }
             return message
