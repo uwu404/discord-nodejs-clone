@@ -17,7 +17,7 @@ function sendMessage(app, io) {
         })
         if (req.body.attachment) {
             const image = new Image({
-                data: req.body.attachment.data,
+                data: req.body.attachment.data.split(",")[1],
                 name: `${message._id}.webp`
             })
             await image.save()
