@@ -2,6 +2,7 @@ const Message = require("../../models/message")
 const User = require("../../models/user")
 const Channel = require("../../models/channel")
 const Image = require("../../models/image")
+const sharp = require("sharp")
 
 function sendMessage(app, io) {
     app.post("/channels/:channel/messages", async (req, res) => {
@@ -16,8 +17,11 @@ function sendMessage(app, io) {
             timestamp: Date.now()
         })
         if (req.body.attachment) {
+            const buffer = Buffer.from(req.body.attachment.data.split(",")[1], "base64")
+            // still no gif support
+            const data = await sharp(buffer).webp({ quality: 60 }).toBuffer()
             const image = new Image({
-                data: req.body.attachment.data.split(",")[1],
+                data: data.toString("base64"),
                 name: `${message._id}.webp`
             })
             await image.save()
