@@ -7,6 +7,7 @@ const getservers = require("./routes/getservers")
 const createserver = require("./routes/createserver")
 const getchannels = require("./routes/getchannels")
 const deleteMessage = require("./routes/messagedelete")
+const deleteServer = require("./routes/serverdelete")
 
 function nodeRoutes(app, io) {
     createuser(app)
@@ -18,6 +19,7 @@ function nodeRoutes(app, io) {
     createserver(app)
     getchannels(app)
     deleteMessage(app, io)
+    deleteServer(app)
 }
 
 module.exports = nodeRoutes
