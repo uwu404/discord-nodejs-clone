@@ -6,14 +6,15 @@ function getFriendRequests(app) {
         const user = await User.findOne({ token })
         const requestsArray = Array.from(user.friendRequests, r => r.user)
         const users = await User.find({ _id: { $in: { requestsArray } } })
-        const userMap = users.map(u => {
-            return {
-                username: u.username,
-                avatarURL: u.avatarURL,
-                _id: user._id,
-                tag: user.tag
-            }
-        })
+        const userMap = []
+        for (let i = 0; i < users.length; i++) {
+            userMap.push({ 
+                username: users[i].username,
+                avatarURL: users[i].avatarURL,
+                _id: users[i]._id,
+                tag: users[i].tag,
+            })
+        }
         res.send(userMap)
     })
 }
