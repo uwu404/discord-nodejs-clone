@@ -4,6 +4,7 @@ function getFriendRequests(app) {
     app.get("/friends/pending", async (req, res) => {
         const token = req.headers.authorization;
         const user = await User.findOne({ token })
+        if (!user) return res.send("// 404")
         const requestsArray = Array.from(user.friendRequests, r => r.user)
         const users = await User.find({ _id: { $in: { requestsArray } } })
         const userMap = []
@@ -15,7 +16,7 @@ function getFriendRequests(app) {
                 tag: users[i].tag,
             })
         }
-        res.send(userMap)
+        res.send(userMap || "// 404")
     })
 }
 
