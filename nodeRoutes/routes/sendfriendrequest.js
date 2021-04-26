@@ -1,10 +1,10 @@
 const User = require("../../models/user")
 
 function sendFriendRequest(app) {
-    app.post("/users/:user/request", async (req, res) => {
+    app.post("/users/:username&:tag/request", async (req, res) => {
         const token = req.headers.authorization
         const user = await User.findOne({ token })
-        const pending = await User.findOne({ _id: req.params.user })
+        const pending = await User.findOne({ username: req.params.username, tag: req.params.tag })
         if (!user || !pending) return res.status = 404
         if (user.friendRequests.some(r => r.user === `${pending._id}`)) return res.status = 404
         user.friendRequests.push({ recieved: false, user: `${pending._id}` })
