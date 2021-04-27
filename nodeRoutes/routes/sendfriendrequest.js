@@ -7,6 +7,7 @@ function sendFriendRequest(app) {
         const pending = await User.findOne({ username: req.params.username, tag: req.params.tag })
         if (!user || !pending) return res.status = 404
         if (user.friendRequests.some(r => r.user === `${pending._id}`)) return res.status = 404
+        if (user.friends.some(f => f === pending._id)) return res.status = 404
         user.friendRequests.push({ recieved: false, user: `${pending._id}` })
         pending.friendRequests.push({ recieved: true, user: `${user._id}` })
         await pending.save()
