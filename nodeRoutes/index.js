@@ -10,6 +10,7 @@ const deleteMessage = require("./routes/messagedelete")
 const deleteServer = require("./routes/serverdelete")
 const getFriendRequests = require("./routes/getfriendrequests")
 const sendFriendRequest = require("./routes/sendfriendrequest")
+const getFriends = require("./routes/getfriends")
 const acceptFriendRequest = require("./routes/acceptfriendrequest")
 
 function nodeRoutes(app, io) {
@@ -19,6 +20,7 @@ function nodeRoutes(app, io) {
     sendFriendRequest(app)
     acceptFriendRequest(app)
     edituser(app)
+    getFriends(app)
     sendmessage(app, io)
     images(app)
     getservers(app)
