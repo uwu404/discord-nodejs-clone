@@ -7,6 +7,8 @@ function acceptFriendRequest(app) {
         const sender = await User.findOne({ _id: req.params.user })
         if (!user || !sender) return res.status = 404
         if (!user.friendRequests.some(r => r.recieved && r.user === `${sender._id}`)) return res.status = 404
+        user.friendRequests.splice(user.friendRequests.indexOf(user.friendRequests.find(i => i.user === sender._id)))
+        sender.friendRequests.splice(sender.friendRequests.indexOf(sender.friendRequests.find(i => i.user === user._id)))
         user.friends.push(`${sender._id}`)
         sender.friends.push(`${user._id}`)
         await sender.save()
