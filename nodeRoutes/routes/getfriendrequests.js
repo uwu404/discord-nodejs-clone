@@ -14,6 +14,7 @@ function getFriendRequests(app) {
                 avatarURL: users[i].avatarURL,
                 _id: users[i]._id,
                 tag: users[i].tag,
+                recieved: user.friendRequests[i].recieved
             })
         }
         res.send(userMap)
