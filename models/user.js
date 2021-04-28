@@ -12,7 +12,8 @@ const userSchema = new Schema({
         online: Boolean
     },
     friendRequests: [{ recieved: Boolean, user: String }],
-    friends: [String]
+    friends: [String],
+    directMessages: [String]
 });
 
 const User = mongoose.model("user", userSchema);
