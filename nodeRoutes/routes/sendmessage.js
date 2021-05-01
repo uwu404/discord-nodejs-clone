@@ -9,7 +9,7 @@ function sendMessage(app, io) {
         const token = req.headers.authorization
         const user = await User.findOne({ token })
         const channel = await Channel.findOne({ _id: req.params.channel })
-        if (!user || !channel) return res.status = 404
+        if (!user || !channel || !req.body.content) return res.status = 404
         const message = new Message({
             author: user._id,
             content: req.body.content,
