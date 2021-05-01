@@ -14,11 +14,13 @@ const getFriends = require("./routes/getfriends")
 const acceptFriendRequest = require("./routes/acceptfriendrequest")
 const directMessage = require("./routes/directmessage")
 const getdms = require("./routes/getdms")
+const getServer = require("./routes/getserver")
 
 function nodeRoutes(app, io) {
     createuser(app)
     getuser(app)
     getdms(app)
+    getServer(app)
     directMessage(app)
     getFriendRequests(app)
     sendFriendRequest(app)
