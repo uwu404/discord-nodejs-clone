@@ -6,6 +6,6 @@ const dmSchema = new Schema({
     messages: [String]
 });
 
-const Dm = mongoose.model("image", dmSchema);
+const Dm = mongoose.model("dm", dmSchema);
 
 module.exports = Dm
