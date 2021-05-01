@@ -6,7 +6,7 @@ const Image = require("../../models/image")
 function deleteMessage(app, io) {
     app.delete("/channels/:channel/messages/:message", async (req, res) => {
         const user = await User.findOne({ token: req.headers.authorization })
-        const channel = await Channel.findOne({ _id: req.params.channel })
+        const channel = await Channel.findOne({ _id: req.params.channel }) || await User.findOne({ _id: req.params.channel })
         if (!user || !channel) return res.status = 404
         const message = await Message.findByIdAndDelete(req.params.message)
         await Image.findOneAndDelete({ name: `${message._id}.webp` })
