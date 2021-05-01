@@ -29,4 +29,4 @@ function directMessage(app) {
     })
 }
 
-moduls.exports = directMessage
+module.exports = directMessage

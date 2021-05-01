@@ -12,4 +12,4 @@ function getDirectMessages(app) {
     })
 }
 
-moduls.exports = getDirectMessages
+module.exports = getDirectMessages
