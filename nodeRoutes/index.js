@@ -15,6 +15,7 @@ const acceptFriendRequest = require("./routes/acceptfriendrequest")
 const directMessage = require("./routes/directmessage")
 const getdms = require("./routes/getdms")
 const getServer = require("./routes/getserver")
+const joinServer = require("./routes/joinserver")
 
 function nodeRoutes(app, io) {
     createuser(app)
@@ -26,6 +27,7 @@ function nodeRoutes(app, io) {
     sendFriendRequest(app)
     acceptFriendRequest(app)
     edituser(app)
+    joinServer(app)
     getFriends(app)
     sendmessage(app, io)
     images(app)
