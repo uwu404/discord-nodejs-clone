@@ -9,7 +9,7 @@ function getDirectMessages(app) {
         if (!user || !reciever) return res.status(500).send("oops something went wrong")
         const dm = await Dms.findOne({ users: { $all: [`${user._id}`, `${reciever._id}`] } })
         const list = dm.messages
-        const messages = await Message.find({ _id: { $in: list } })
+        const messages = await Message.find({ _id: list })
         res.send(messages)
     })
 }
