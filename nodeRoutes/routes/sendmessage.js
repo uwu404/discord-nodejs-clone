@@ -34,7 +34,18 @@ function sendMessage(app, io) {
         message.save()
             .then(result => {
                 res.send(result)
-                io.to(`${channel._id}`).emit("message", result)
+                io.to(`${channel._id}`).emit("message", {
+                    _id: result._id,
+                    content: result.content,
+                    timestamp: result.timestamp,
+                    channel: result.channel,
+                    attachment: {
+                        width: result.attachment?.width,
+                        height: result.attachment?.height,
+                        URL: result.attachment?.URL
+                    },
+                    author: { username: user.username, _id: user._id, avatarURL: user.avatarURL, tag: user.tag }
+                })
             })
     })
 }
