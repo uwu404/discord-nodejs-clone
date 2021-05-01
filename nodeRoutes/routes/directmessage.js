@@ -1,6 +1,6 @@
 const User = require("../../models/user")
 const Dms = require("../../models/dms")
-const Message = require("../../models/channel")
+const Message = require("../../models/message")
 
 function directMessage(app) {
     app.post("/dm/:user", async (req, res) => {
@@ -20,11 +20,12 @@ function directMessage(app) {
                 users: [`${user._id}`, `${reciever._id}`],
                 messages: [`${msg._id}`]
             })
-            newDm.save()
+            await newDm.save()
         } else {
             dm.messages.push(`${msg._id}`)
-            dm.save()
+            await dm.save()
         }
+        await message.save()
         res.send(msg)
     })
 }
