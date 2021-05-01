@@ -7,7 +7,7 @@ function joinServer(app) {
         const user = await User.findOne({ token })
         const server = await Server.findOne({ invites: req.params.server })
         if (!user || !server) return res.status(500).send("error")
-        if (!server.invites.includes(user._id)) server.invites.push(user._id)
+        if (!server.members.includes(user._id)) server.members.push(user._id)
         const result = await server.save()
         res.send(result)
     })
