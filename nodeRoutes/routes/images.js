@@ -4,11 +4,7 @@ const sharp = require("sharp")
 function images(app) {
     app.get("/images/:name", async (req, res) => {
         const image = await Image.findOne({ name: req.params.name }).catch(err => console.log(err))
-        if (!image) {
-            res.send("// 404")
-            res.status = 404
-            return
-        }
+        if (!image) return res.status(404).send("//404")
 
         const img = Buffer.from(image.data, 'base64');
         if (parseInt(req.query.height) || parseInt(req.query.width)) {
