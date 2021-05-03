@@ -24,7 +24,7 @@ function nodeRoutes(app, io) {
     getdms(app)
     getServer(app)
     getServerMembers(app)
-    directMessage(app)
+    directMessage(app, io)
     getFriendRequests(app)
     sendFriendRequest(app)
     acceptFriendRequest(app)

@@ -2,7 +2,7 @@ const User = require("../../models/user")
 const Dms = require("../../models/dms")
 const Message = require("../../models/message")
 
-function directMessage(app) {
+function directMessage(app, io) {
     app.post("/dm/:user", async (req, res) => {
         const user = await User.findOne({ token: req.headers.authorization })
         const reciever = await User.findById(req.params.user)
