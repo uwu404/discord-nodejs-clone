@@ -7,6 +7,7 @@ function join(socket) {
         if (!user) return
         socket.join(args.channel)
         const messages = await Message.find({ channel: args.channel })
+        if (!messages) return
         const authors = Array.from(messages, m => m.author)
         const users = await User.find({ _id: { $in: authors } })
         const mappedMessages = messages.map(m => {
