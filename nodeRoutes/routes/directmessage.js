@@ -26,6 +26,7 @@ function directMessage(app) {
         }
         await message.save()
         res.send(msg)
+        io.to(`${user._id}`).to(`${reciever._id}`).emit("dm")
     })
 }
 
