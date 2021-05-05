@@ -16,11 +16,13 @@ const directMessage = require("./routes/directmessage")
 const getdms = require("./routes/getdms")
 const getServer = require("./routes/getserver")
 const joinServer = require("./routes/joinserver")
+const getDmLogs = require("./routes/getdmlogs")
 const getServerMembers = require("./routes/getservermembers")
 
 function nodeRoutes(app, io) {
     createuser(app)
     getuser(app)
+    getDmLogs(app)
     getdms(app)
     getServer(app)
     getServerMembers(app)
