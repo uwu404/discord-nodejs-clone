@@ -10,10 +10,10 @@ function getuser(app) {
         const ids = Array.from(servers, s => s._id)
         const channels = await Channel.find({ server: { $in: ids } })
         const serversWithChannels = Array.from(servers, s => {
-            const serverChannels = channels.filter(c => c.server === s._id)
-            return Object.assign({...s}, { channels: serverChannels })
+            const serverChannels = channels.filter(c => c.server == s._id)
+            return Object.assign(JSON.parse(JSON.stringify(s)), { channels: serverChannels })
         })
-        const USER = Object.assign({...user}, { servers: serversWithChannels })
+        const USER = Object.assign(JSON.parse(JSON.stringify(user)), { servers: serversWithChannels })
         res.send(USER)
     })
 }
