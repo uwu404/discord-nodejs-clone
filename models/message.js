@@ -10,7 +10,8 @@ const messageSchema = new Schema({
         width: Number,
         height: Number,
         URL: String
-    }
+    },
+    invite: { icon: String, code: String, name: String }
 }, { timestamps: true });
 
 const Message = mongoose.model("message", messageSchema);

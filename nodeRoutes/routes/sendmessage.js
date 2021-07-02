@@ -2,6 +2,7 @@ const Message = require("../../models/message")
 const User = require("../../models/user")
 const Channel = require("../../models/channel")
 const Image = require("../../models/image")
+const Server = require("../../models/server")
 const sharp = require("sharp")
 const sizeOf = require("image-size")
 const gifResize = require("gif-resizer")
@@ -12,12 +13,17 @@ function sendMessage(app, io) {
         const user = await User.findOne({ token })
         const channel = await Channel.findOne({ _id: req.params.channel })
         if (!user || !channel || (!req.body.content && !req.body.attachment)) return res.status(500).send("// cannot send an empty message")
+        const invite = req.body.content?.match(/(^|\s)server\/.{7}(?=\s|$)/g)?.[0]
         const message = new Message({
             author: user._id,
             content: req.body.content,
             channel: req.params.channel,
             timestamp: Date.now()
         })
+        if (invite) {
+            const server = await Server.findOne({ invites: invite.split("/")[1] })
+            if (server) message.invite = { code: invite.split("/")[1], icon: server.icon, name: server.name }
+        }
 
 
         const base64str = req.body.attachment?.split(",")[1]
