@@ -3,32 +3,52 @@ const User = require("../../models/user")
 const Channel = require("../../models/channel")
 const Image = require("../../models/image")
 const sharp = require("sharp")
+const sizeOf = require("image-size")
+const gifResize = require("gif-resizer")
 
 function sendMessage(app, io) {
     app.post("/channels/:channel/messages", async (req, res) => {
         const token = req.headers.authorization
         const user = await User.findOne({ token })
         const channel = await Channel.findOne({ _id: req.params.channel })
-        if (!user || !channel || (!req.body.content && !req.body.attachment)) return res.status = 404
+        if (!user || !channel || (!req.body.content && !req.body.attachment)) return res.status(500).send("// cannot send an empty message")
         const message = new Message({
             author: user._id,
             content: req.body.content,
             channel: req.params.channel,
             timestamp: Date.now()
         })
-        if (req.body.attachment) {
-            const buffer = Buffer.from(req.body.attachment.data.split(",")[1], "base64")
-            // still no gif support
-            const data = await sharp(buffer).webp({ quality: 60 }).toBuffer()
-            const image = new Image({
-                data: data.toString("base64"),
-                name: `${message._id}.webp`
-            })
-            await image.save()
-            message.attachment = {
-                width: req.body.attachment.width,
-                height: req.body.attachment.height,
-                URL: `${process.env.URL}/images/${message._id}.webp`
+
+
+        const base64str = req.body.attachment?.split(",")[1]
+        const base64ex = /^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$/
+        if (!req.body.content && !base64ex.test(base64str)) return res.status(500).send("// cannot send an empty message")
+        if (base64str && base64ex.test(base64str)) {
+            const buffer = Buffer.from(base64str, "base64")
+            const size = sizeOf(buffer)
+
+            if (size.type !== "gif") {
+                const data = await sharp(buffer).webp({ quality: 60 }).toBuffer()
+                await save(data, false)
+            } else {
+                const gif = await gifResize(buffer, { lossy: 90, optimize: 3, colors: 150 })
+                await save(gif, true)
+            }
+
+            async function save(data, dynamic) {
+                const image = new Image({
+                    data,
+                    dynamic,
+                })
+
+                image.name = `${image._id}.webp`
+                await image.save()
+
+                message.attachment = {
+                    width: size.width,
+                    height: size.height,
+                    URL: `images/${image._id}.webp`
+                }
             }
         }
         message.save()

@@ -1,10 +1,14 @@
 const User = require("../../models/user")
 const Message = require("../../models/message")
+const Channel = require("../../models/channel")
+const Server = require("../../models/server")
 
 function join(socket) {
     socket.on("join", async args => {
         const user = await User.findOne({ token: args.Authorization }).catch(err => console.log(err))
-        if (!user) return
+        const channel = await Channel.findById(args.channel)
+        const server = await Server.findById(channel.server)
+        if (!user || !channel || !server || (!server.members.includes(`${user._id}`))) return
         socket.join(args.channel)
         const messages = await Message.find({ channel: args.channel })
         if (!messages) return
@@ -26,7 +30,7 @@ function join(socket) {
             }
             return message
         })
-        socket.emit("messages", mappedMessages)
+        socket.emit("messages", { to: `${channel._id}`, messages: mappedMessages })
     })
 }
 

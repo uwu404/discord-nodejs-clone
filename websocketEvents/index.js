@@ -1,9 +1,10 @@
 const join = require("./events/join")
+const serverEv = require("./events/server")
 
 function socketEvents(io) {
     io.on("connection", socket => {
-        console.log(`new client with id: ${socket.id}`)
         join(socket)
+        serverEv(socket)
     })
 }
 

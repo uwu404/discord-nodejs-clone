@@ -1,39 +1,50 @@
 const User = require("../../models/user")
 const Image = require("../../models/image")
 const sharp = require("sharp")
-const gifsicle = require("../../gifsicle")
+const resize = require("gif-resizer")
+const sizeOf = require("image-size")
 
 function editavatar(app) {
-    app.patch("/@me/user/edit", async (req, res) => {
+    app.patch("/user/edit", async (req, res) => {
         const user = await User.findOne({ token: req.headers.authorization })
-        if (req.body.data) {
-            const grabage = await Image.findOne({ name: `${user._id}.webp` })
+
+
+        const base64ex = /^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$/
+        const base64str = req.body.data.split(",")[1]
+        if (req.body.data && base64ex.test(base64str)) {
+
+            const grabage = await Image.findOne({ name: `${user.avatarURL.split("/")[1]}` })
                 .catch(err => console.log(err))
-            if (req.body.imageType !== 'gif') {
-                const icon = sharp(Buffer.from(req.body.data.split(",")[1], "base64"))
-                icon.webp({ quality: 50, loop: 0 })
-                icon.resize(200, 200)
+
+            const buffer = Buffer.from(base64str, "base64")
+            const type = sizeOf(buffer).type
+
+            if (type !== "gif") {
+                const icon = sharp(buffer)
+                icon.webp({ quality: 50 })
+                icon.resize(300, 300)
                 const data = await icon.toBuffer()
-                save(data)
+                await save(data, false)
             } else {
-                const width = parseInt(req.body.dimensions.width)
-                const height = parseInt(req.body.dimensions.height)
-                const toSize = (height < width ? height : width) - 1
-                const x = height > width ? 0 : Math.floor((width - height) / 2)
-                const y = height < width ? 0 : Math.floor((height - width) / 2)
-                const resizeGif = await gifsicle(Buffer.from(req.body.data.split(",")[1], "base64"), `${x},${y}+${toSize}x${toSize}`).catch(() => console.log("error resizing gif"))
-                save(resizeGif)
+                const gif = await resize(buffer, { width: 300, height: 300, colors: 256, optimize: 1 })
+                await save(gif, true)
             }
-            async function save(data) {
+
+
+            async function save(data, dynamic) {
                 const image = new Image({
-                    data: data.toString("base64"),
-                    name: `${user._id}.webp`
+                    data,
+                    dynamic,
                 })
+
+                image.name = `${image._id}.webp`
                 await image.save()
-                user.avatarURL = `${process.env.URL}/images/${user._id}.webp`
-                user.save()
+                user.avatarURL = `images/${image._id}.webp`
             }
-            grabage.delete()
+
+            grabage?.delete()
+
+
         }
         if (req.body.username) user.username = req.body.username
         user.save()

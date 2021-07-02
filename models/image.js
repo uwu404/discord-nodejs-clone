@@ -2,8 +2,9 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const imageSchema = new Schema({
-    data: String,
-    name: String
+    data: Buffer,
+    name: String,
+    dynamic: Boolean
 });
 
 const Image = mongoose.model("image", imageSchema);
