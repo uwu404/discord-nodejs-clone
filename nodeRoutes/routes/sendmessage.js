@@ -22,7 +22,7 @@ function sendMessage(app, io) {
         })
         if (invite) {
             const server = await Server.findOne({ invites: invite.split("/")[1] })
-            if (server) message.invite = { code: invite.split("/")[1], icon: server.icon, name: server.name }
+            if (server) message.invite = { code: invite.split("/")[1], icon: server.icon, name: server.name, members: server.members.length }
         }
 
 

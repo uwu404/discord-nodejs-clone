@@ -26,6 +26,7 @@ function join(socket) {
                     height: m.attachment?.height,
                     URL: m.attachment?.URL
                 },
+                invite: m.invite,
                 author: { username: user.username, _id: user._id, avatarURL: user.avatarURL, tag: user.tag }
             }
             return message
