@@ -33,7 +33,7 @@ function createserver(app) {
                 save(data, false)
             } else {
                 // if the image is a gif
-                const gif = await resize(buffer, { width: 100, height: 100, colors: 120, optimize: 3 })
+                const gif = await resize(buffer, { width: 100, height: 100, colors: 120, optimize: 1 })
                 await save(gif, true)
             }
             async function save(data, dynamic) {

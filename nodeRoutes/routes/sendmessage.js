@@ -6,14 +6,16 @@ const Server = require("../../models/server")
 const sharp = require("sharp")
 const sizeOf = require("image-size")
 const gifResize = require("gif-resizer")
+const mongoose = require("mongoose")
 
 function sendMessage(app, io) {
     app.post("/channels/:channel/messages", async (req, res) => {
         const token = req.headers.authorization
         const user = await User.findOne({ token })
-        const channel = await Channel.findOne({ _id: req.params.channel })
+        if (!mongoose.isValidObjectId(req.params.channel)) return res.status(403).send("// 403")
+        const channel = await Channel.findById(req.params.channel)
         if (!user || !channel || (!req.body.content && !req.body.attachment)) return res.status(500).send("// cannot send an empty message")
-        const invite = req.body.content?.match(/(^|\s)server\/.{7}(?=\s|$)/g)?.[0]
+        let invite = req.body.content?.match(/(^|\s)server\/.{7}(?=\s|$)/g)?.[0]
         const message = new Message({
             author: user._id,
             content: req.body.content,
@@ -22,7 +24,8 @@ function sendMessage(app, io) {
         })
         if (invite) {
             const server = await Server.findOne({ invites: invite.split("/")[1] })
-            if (server) message.invite = { code: invite.split("/")[1], icon: server.icon, name: server.name, members: server.members.length }
+            if (server) message.invite = server._id
+            invite = server
         }
 
 
@@ -57,10 +60,11 @@ function sendMessage(app, io) {
                 }
             }
         }
+
         message.save()
             .then(result => {
-                res.send(result)
-                io.to(`${channel._id}`).emit("message", {
+                const msg = {
+                    invite,
                     _id: result._id,
                     content: result.content,
                     timestamp: result.timestamp,
@@ -70,8 +74,10 @@ function sendMessage(app, io) {
                         height: result.attachment?.height,
                         URL: result.attachment?.URL
                     },
-                    author: { username: user.username, _id: user._id, avatarURL: user.avatarURL, tag: user.tag }
-                })
+                    author: { username: user.username, _id: user._id, avatarURL: user.avatarURL, tag: user.tag, online: user.online }
+                }
+                res.send(msg)
+                io.to(`${channel._id}`).emit("message", msg)
             })
     })
 }

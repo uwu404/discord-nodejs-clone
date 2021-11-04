@@ -1,10 +1,10 @@
 const join = require("./events/join")
-const serverEv = require("./events/server")
+const personalSocket = require("./events/personalSocket")
 
 function socketEvents(io) {
     io.on("connection", socket => {
         join(socket)
-        serverEv(socket)
+        personalSocket(socket, io)
     })
 }
 

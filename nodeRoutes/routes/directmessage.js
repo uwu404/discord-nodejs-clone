@@ -6,7 +6,8 @@ function directMessage(app, io) {
     app.post("/dm/:user", async (req, res) => {
         const user = await User.findOne({ token: req.headers.authorization })
         const reciever = await User.findById(req.params.user)
-        if (!reciever || !user || !req.body.content) res.status(500).send("// something went wrong")
+        console.log(!!reciever, !!user, req.body.content)
+        if (!reciever || !user || !req.body.content) return res.status(500).send("// something went wrong")
         const dm = await Dms.findOne({ users: { $all: [`${user._id}`, `${reciever._id}`] } })
         const message = new Message({
             author: user._id,
@@ -38,7 +39,8 @@ function directMessage(app, io) {
                 username: user.username,
                 tag: user.tag,
                 _id: user._id
-            }
+            },
+            channel: user._id
         })
     })
 }

@@ -8,9 +8,7 @@ const userSchema = new Schema({
     email: String,
     password: String,
     token: String,
-    presence: {
-        online: Boolean
-    },
+    online: Boolean,
     friendRequests: [{ recieved: Boolean, user: String }],
     friends: [String],
     directMessages: [String]

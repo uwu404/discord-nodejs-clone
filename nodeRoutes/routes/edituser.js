@@ -3,8 +3,9 @@ const Image = require("../../models/image")
 const sharp = require("sharp")
 const resize = require("gif-resizer")
 const sizeOf = require("image-size")
+const Server = require("../../models/server")
 
-function editavatar(app) {
+function editavatar(app, io) {
     app.patch("/user/edit", async (req, res) => {
         const user = await User.findOne({ token: req.headers.authorization })
 
@@ -48,7 +49,17 @@ function editavatar(app) {
         }
         if (req.body.username) user.username = req.body.username
         user.save()
-            .then(result => res.send(result))
+            .then(async result => {
+                res.send(result)
+                const servers = await Server.find({ members: user._id })
+                let rooms = io
+                for (const server of servers) rooms = rooms.to(`${server._id}`)
+                rooms.emit("memberUpdate", {
+                    avatarURL: result.avatarURL,
+                    username: result.username,
+                    _id: result._id
+                })
+            })
     })
 }
 

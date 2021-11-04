@@ -11,7 +11,7 @@ const messageSchema = new Schema({
         height: Number,
         URL: String
     },
-    invite: { icon: String, code: String, name: String }
+    invite: String
 }, { timestamps: true });
 
 const Message = mongoose.model("message", messageSchema);

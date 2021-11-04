@@ -7,11 +7,16 @@ function getDirectMessages(app) {
         const user = await User.findOne({ token: req.headers.authorization })
         const reciever = await User.findById(req.params.user)
         if (!user || !reciever) return res.status(500).send("oops something went wrong")
-        const dm = await Dms.findOne({ users: { $all: [`${user._id}`, `${reciever._id}`] } })
+        const dm = await Dms.findOne({ users: { $all: [`${user._id}`, `${reciever._id}`] } }) ||
+            new Dms({
+                users: [`${user._id}`, `${reciever._id}`],
+                messages: []
+            })
         const messages = await Message.find({ _id: { $in: dm.messages } })
         const result = messages.map(m => {
             const author = m.author === `${user._id}` ? user : reciever
             const message = {
+                channel: reciever._id,
                 _id: m._id,
                 content: m.content,
                 timestamp: m.timestamp,

@@ -9,7 +9,7 @@ function deleteServer(app) {
         const user = await User.findOne({ token })
         const server = await Server.findOne({ _id: req.params.server, owner: user._id })
         if (!user || !server) return res.status(500).send("oops something went wrong 😂👌!1!1!!")
-        if (`${server.owner}` !== `${user._id}`) return res.status(403).send("// 405 forbidden ")
+        if (`${server.owner}` !== `${user._id}`) return res.status(403).send("// 403 forbidden ")
         const channels = await Channel.find({ server: server._id })
         const channelArray = Array.from(channels, c => c._id)
         await Message.deleteMany({ channel: { $in: channelArray } })

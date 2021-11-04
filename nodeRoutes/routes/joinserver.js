@@ -1,5 +1,6 @@
 const User = require("../../models/user")
 const Server = require("../../models/server")
+const Channel = require("../../models/channel")
 
 function joinServer(app) {
     app.post("/servers/:server", async (req, res) => {
@@ -9,7 +10,8 @@ function joinServer(app) {
         if (!user || !server) return res.status(500).send("error")
         if (!server.members.includes(user._id)) server.members.push(user._id)
         const result = await server.save()
-        res.send(result)
+        const channels = await Channel.find({ server: server._id })
+        res.send(Object.assign(JSON.parse(JSON.stringify(result)), { channels }))
     })
 }
 

@@ -11,7 +11,7 @@ function getFriends(app) {
                 _id: f._id,
                 avatarURL: f.avatarURL,
                 tag: f.tag,
-                presence: f.presence
+                online: f.online
             }
         })
         res.send(friends)

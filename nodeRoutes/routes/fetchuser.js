@@ -7,6 +7,7 @@ function fetchUser(app) {
         const data = {
             username: user.username,
             tag: user.tag,
+            online: user.online,
             avatarURL: user.avatarURL
         }
         res.send(data)

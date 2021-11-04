@@ -8,7 +8,7 @@ function createchannel(app, io) {
         const server = await Server.findById(req.params.server)
         if (!server || !user) return res.status = 404
         if (!req.body.name || req.body.name.length > 12) return res.status = 404
-        if (`${server.owner}` !== `${user._id}`) return res.status = 404 //only a server owner can create a channel
+        if (`${server.owner}` !== `${user._id}`) return res.status(404) //only a server owner can create a channel
         const channel = new Channel({
             name: req.body.name,
             server: server._id,
