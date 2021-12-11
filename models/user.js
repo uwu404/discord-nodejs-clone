@@ -11,8 +11,15 @@ const userSchema = new Schema({
     online: Boolean,
     friendRequests: [{ recieved: Boolean, user: String }],
     friends: [String],
-    directMessages: [String]
-});
+    directMessages: [String],
+    notifications: [
+        {
+            type: String,
+            id: String
+        }
+    ],
+    profileColor: String
+}, { typeKey: "$type" });
 
 const User = mongoose.model("user", userSchema);
 

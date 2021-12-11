@@ -15,7 +15,8 @@ function getServerMembers(app) {
                 online: u.online,
                 _id: u._id,
                 avatarURL: u.avatarURL,
-                tag: u.tag
+                tag: u.tag,
+                profileColor: u.profileColor
             }
         })
         res.send(members)

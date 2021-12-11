@@ -74,7 +74,7 @@ function sendMessage(app, io) {
                         height: result.attachment?.height,
                         URL: result.attachment?.URL
                     },
-                    author: { username: user.username, _id: user._id, avatarURL: user.avatarURL, tag: user.tag, online: user.online }
+                    author: { username: user.username, _id: user._id, avatarURL: user.avatarURL, tag: user.tag, online: user.online, profileColor: user.profileColor }
                 }
                 res.send(msg)
                 io.to(`${channel._id}`).emit("message", msg)

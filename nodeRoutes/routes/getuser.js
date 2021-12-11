@@ -9,11 +9,24 @@ function getuser(app) {
         const servers = await Server.find({ members: user._id }).catch(console.log)
         const ids = Array.from(servers, s => s._id)
         const channels = await Channel.find({ server: { $in: ids } })
-        const serversWithChannels = Array.from(servers, s => {
+        const serversWithChannels = Array.from(servers.reverse(), s => {
             const serverChannels = channels.filter(c => c.server == s._id)
             return Object.assign(JSON.parse(JSON.stringify(s)), { channels: serverChannels })
         })
-        const USER = Object.assign(JSON.parse(JSON.stringify(user)), { servers: serversWithChannels })
+        const dms = Array.from(user.notifications, (notification) => notification.type === "dm" && notification.id)
+        const users = await User.find({ _id: { $in: dms } })
+        const mappedusers = users.map(u => ({
+            user: {
+                avatarURL: u.avatarURL,
+                username: u.username,
+                tag: u.tag,
+                _id: u._id
+            },
+            type: "dm",
+            id: u._id
+        }))
+        const notifications = dms.map(n => mappedusers.find(u => u.id == n))
+        const USER = Object.assign(JSON.parse(JSON.stringify(user)), { servers: serversWithChannels, notifications })
         res.send(USER)
     })
 }

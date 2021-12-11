@@ -15,7 +15,7 @@ function deleteMessage(app, io) {
         if (!message) return
         await Image.findOneAndDelete({ name: `${message.attachment.URL?.split("/")[1]}` })
         res.send(message)
-        io.to(`${channel._id}`).emit("messageDelete", message)
+        io.to(`${channel._id}`).to(`${user._id}`).emit("messageDelete", Object.assign(JSON.parse(JSON.stringify(message)), { user: channel._id }))
     })
 }
 

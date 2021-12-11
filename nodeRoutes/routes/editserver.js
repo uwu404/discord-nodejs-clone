@@ -5,7 +5,7 @@ const resize = require("gif-resizer")
 const sizeOf = require("image-size")
 const sharp = require("sharp")
 
-function editServer(app) {
+function editServer(app, io) {
     app.patch("/server/:server", async (req, res) => {
         const user = await User.findOne({ token: req.headers.authorization })
         const server = await Server.findById(req.params.server).catch(console.log)
@@ -15,7 +15,6 @@ function editServer(app) {
         if (!server) return res.status(404).send("// 404 not found")
         if (`${user._id}` !== server.owner) return res.status(403).send('// 403 forbidden')
 
-        // patch icon
         const base64ex = /^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$/
         const base64str = req.body.icon.split(",")[1]
         if (req.body.icon && base64ex.test(base64str)) {
@@ -49,10 +48,9 @@ function editServer(app) {
             grabage?.delete()
         }
 
-        // patch name 
         if (req.body.name) server.name = req.body.name
-        server.save()
-            .then(result => res.send(result))
+        await server.save()
+        io.to(server._id + "").emit("serverUpdate", server)
     })
 }
 

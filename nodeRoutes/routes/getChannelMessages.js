@@ -30,7 +30,7 @@ function getChannelMessages(app) {
                     URL: m.attachment?.URL
                 },
                 invite: server,
-                author: { username: user.username, _id: user._id, avatarURL: user.avatarURL, tag: user.tag, online: user.online }
+                author: { username: user.username, _id: user._id, avatarURL: user.avatarURL, tag: user.tag, online: user.online, profileColor: user.profileColor }
             }
             return message
         })

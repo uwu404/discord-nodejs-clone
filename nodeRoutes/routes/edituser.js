@@ -12,51 +12,54 @@ function editavatar(app, io) {
 
         const base64ex = /^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$/
         const base64str = req.body.data.split(",")[1]
-        if (req.body.data && base64ex.test(base64str)) {
 
-            const grabage = await Image.findOne({ name: `${user.avatarURL.split("/")[1]}` })
-                .catch(err => console.log(err))
+        const newAvatar = async () => {
+            if (req.body.data && base64ex.test(base64str)) {
 
-            const buffer = Buffer.from(base64str, "base64")
-            const type = sizeOf(buffer).type
+                const grabage = await Image.findOne({ name: `${user.avatarURL.split("/")[1]}` })
+                    .catch(err => console.log(err))
 
-            if (type !== "gif") {
-                const icon = sharp(buffer)
-                icon.webp({ quality: 50 })
-                icon.resize(300, 300)
-                const data = await icon.toBuffer()
-                await save(data, false)
-            } else {
-                const gif = await resize(buffer, { width: 300, height: 300, colors: 256, optimize: 1 })
-                await save(gif, true)
-            }
+                const buffer = Buffer.from(base64str, "base64")
+                const type = sizeOf(buffer).type
 
+                if (type !== "gif") {
+                    const icon = sharp(buffer)
+                    icon.webp({ quality: 50 })
+                    icon.resize(300, 300)
+                    const data = await icon.toBuffer()
+                    return await save(data, false)
+                } else {
+                    const gif = await resize(buffer, { width: 300, height: 300, colors: 256, optimize: 1 })
+                    return await save(gif, true)
+                }
 
-            async function save(data, dynamic) {
-                const image = new Image({
-                    data,
-                    dynamic,
-                })
-
-                image.name = `${image._id}.webp`
-                await image.save()
-                user.avatarURL = `images/${image._id}.webp`
-            }
-
-            grabage?.delete()
-
-
+                async function save(data, dynamic) {
+                    const image = new Image({
+                        data,
+                        dynamic,
+                    })
+                    image.name = `${image._id}.webp`
+                    await image.save()
+                    grabage?.delete()
+                    return `images/${image._id}.webp`
+                }
+            } else return user.avatarURL
         }
-        if (req.body.username) user.username = req.body.username
-        user.save()
+        User.findByIdAndUpdate(user._id, {
+            username: req.body.username || user.username,
+            avatarURL: await newAvatar(), 
+            profileColor: req.body.profileColor || user.profileColor
+        }, { new: true })
             .then(async result => {
                 res.send(result)
                 const servers = await Server.find({ members: user._id })
                 let rooms = io
                 for (const server of servers) rooms = rooms.to(`${server._id}`)
+                for (const friend of user.friends) rooms = rooms.to(friend)
                 rooms.emit("memberUpdate", {
                     avatarURL: result.avatarURL,
                     username: result.username,
+                    profileColor: result.profileColor,
                     _id: result._id
                 })
             })

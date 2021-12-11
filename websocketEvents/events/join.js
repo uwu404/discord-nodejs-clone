@@ -1,5 +1,4 @@
 const User = require("../../models/user")
-const Message = require("../../models/message")
 const Channel = require("../../models/channel")
 const Server = require("../../models/server")
 const mongoose = require("mongoose")
