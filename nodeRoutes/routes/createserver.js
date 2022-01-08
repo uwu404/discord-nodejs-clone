@@ -1,60 +1,32 @@
 const Server = require("../../models/server")
 const User = require("../../models/user")
-const Image = require("../../models/image")
 const Channel = require("../../models/channel")
-const sharp = require("sharp")
-const sizeOf = require("image-size")
-const resize = require("gif-resizer")
+const newAvatar = require("../../globalFunctions.js/createAvatar")
 
 function createserver(app) {
     app.post("/servers", async (req, res) => {
         const token = req.headers.authorization
         if (!token) return res.status(500).send("// 500")
         const user = await User.findOne({ token: token }).catch(console.log)
+        const base64str = req.body.icon?.split(",")[1]
+
+        const channel = new Channel({
+            name: "General",
+            type: "text",
+        })
+
         const server = new Server({
             owner: user._id,
             name: req.body.name,
-            icon: "piano.svg",
+            icon: await newAvatar(base64str, { icon: "/tent.svg" }, { width: 200, height: 200, optimize: 1, colors: 256, quality: 100 }),
             members: [user._id],
-            invites: [makeid(7)]
+            invites: [makeid(7)],
+            channels: [channel._id],
         })
 
-        // creating an icon for the server
-        if (req.body.icon) {
-            const buffer = Buffer.from(req.body.icon.split(",")[1], "base64")
-            const type = sizeOf(buffer).type
+        channel.server = server._id
 
-
-            if (type !== "gif") {
-                const icon = sharp(buffer)
-                icon.webp()
-                icon.resize(100, 100)
-                const data = await icon.toBuffer()
-                save(data, false)
-            } else {
-                // if the image is a gif
-                const gif = await resize(buffer, { width: 100, height: 100, colors: 120, optimize: 1 })
-                await save(gif, true)
-            }
-            async function save(data, dynamic) {
-                const image = new Image({
-                    data,
-                    dynamic
-                })
-                image.name = image._id + `.${type}`
-                await image.save()
-                server.icon = `images/${image._id}.${type}`
-            }
-        }
-
-        const channel = new Channel({
-            server: server._id,
-            name: "General",
-            type: "text"
-        })
         await channel.save()
-
-
         const result = await server.save()
         res.send(Object.assign(JSON.parse(JSON.stringify(result)), { channels: [channel] }))
     })

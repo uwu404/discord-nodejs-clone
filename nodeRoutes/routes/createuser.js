@@ -1,4 +1,5 @@
 const User = require("../../models/user")
+const crypto = require("crypto")
 
 function createUser(app) {
     app.post("/createuser", (req, res) => {
@@ -7,12 +8,11 @@ function createUser(app) {
         if (password.length > 25 || username.length > 25) return res.send(`{"error": "usernames and passwords can't be over 25 characters"}`)
         const user = new User({
             username: username,
-            id: 0,
             avatarURL: "default.svg",
             tag: `#${r()}${r()}${r()}${r()}`,
             email: email,
             password: password,
-            token: makeid(69), // nice ;)
+            token: crypto.randomBytes(69).toString("hex"),
             presence: {
                 online: true
             }
@@ -22,15 +22,6 @@ function createUser(app) {
             .then(result => res.send(result))
             .catch(err => console.log(err))
     })
-}
-
-function makeid(length) {
-    var result = '';
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._-';
-    for (let i = 0; i < length; i++) {
-        result += characters[Math.floor(Math.random() * characters.length)];
-    }
-    return result;
 }
 
 function r() {

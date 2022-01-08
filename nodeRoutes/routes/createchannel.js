@@ -9,14 +9,15 @@ function createchannel(app, io) {
         if (!server || !user) return res.status(403).send("// 403 forbidden")
         if (!req.body.name || req.body.name.length > 12) return res.status(403).send("// 403 forbidden")
         if (`${server.owner}` !== `${user._id}`) return res.status(403).send("// 403 forbidden") //only a server owner can create a channel
-        const channel = new Channel({
+        const channel = await new Channel({
             name: req.body.name,
-            server: `${server._id}`,
+            server: server._id,
             type: "text"
-        })
-        const result = await channel.save()
-        res.send(result)
-        io.to(`${server._id}`).emit("channelCreate", result)
+        }).save()
+        server.channels.push(channel._id)
+        await server.save()
+        res.send(channel)
+        io.to(`${server._id}`).emit("channelCreate", channel)
     })
 }
 

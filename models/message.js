@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const messageSchema = new Schema({
-    author: String,
+    author: { type: Schema.Types.ObjectId, ref: "user" },
     content: String,
     channel: String, 
     timestamp: Number,
@@ -11,7 +11,7 @@ const messageSchema = new Schema({
         height: Number,
         URL: String
     },
-    invite: String
+    invite: { type: Schema.Types.ObjectId, ref: "server" }
 }, { timestamps: true });
 
 const Message = mongoose.model("message", messageSchema);

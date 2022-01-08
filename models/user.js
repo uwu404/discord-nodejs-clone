@@ -9,8 +9,13 @@ const userSchema = new Schema({
     password: String,
     token: String,
     online: Boolean,
-    friendRequests: [{ recieved: Boolean, user: String }],
-    friends: [String],
+    friendRequests: [
+        { 
+            received: Boolean, 
+            user: { $type: Schema.Types.ObjectId, ref: "user" } 
+        }
+    ],
+    friends: [{ $type: Schema.Types.ObjectId, ref: "user" }],
     directMessages: [String],
     notifications: [
         {

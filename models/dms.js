@@ -2,8 +2,8 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const dmSchema = new Schema({
-    users: [String],
-    messages: [String]
+    users: [{ type: Schema.Types.ObjectId, ref: "user" }],
+    messages: [{ type: Schema.Types.ObjectId, ref: "message" }]
 }, { timestamps: true });
 
 const Dm = mongoose.model("dm", dmSchema);

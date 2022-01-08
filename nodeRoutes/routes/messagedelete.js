@@ -7,13 +7,13 @@ const mongoose = require("mongoose")
 function deleteMessage(app, io) {
     app.delete("/channels/:channel/messages/:message", async (req, res) => {
         const user = await User.findOne({ token: req.headers.authorization })
-        if (!mongoose.isValidObjectId(req.params.channel)) return res.status(403).send("// 403")
+        if (!mongoose.isValidObjectId(req.params.channel) || !mongoose.isValidObjectId(req.params.message)) return res.status(403).send("// 403")
         const channel = await Channel.findOne({ _id: req.params.channel }) ||
             await User.findById(req.params.channel)
         if (!user || !channel) return res.status(404)
         const message = await Message.findByIdAndDelete(req.params.message)
         if (!message) return
-        await Image.findOneAndDelete({ name: `${message.attachment.URL?.split("/")[1]}` })
+        Image.findOneAndDelete({ name: `${message.attachment.URL?.split("/")[1]}` })
         res.send(message)
         io.to(`${channel._id}`).to(`${user._id}`).emit("messageDelete", Object.assign(JSON.parse(JSON.stringify(message)), { user: channel._id }))
     })

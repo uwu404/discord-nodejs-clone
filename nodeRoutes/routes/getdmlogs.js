@@ -1,29 +1,19 @@
 const User = require("../../models/user")
 const Dm = require("../../models/dms")
+const createMember = require("../../globalFunctions.js/createMember")
 
-function getDmslogs(app) {
+const getDmslogs = app => {
     app.get("/dms/logs", async (req, res) => {
         const user = await User.findOne({ token: req.headers.authorization })
         const dms = await Dm.find({ users: user._id })
-        const usersId = Array.from(dms, d => d.users.find(u => u != user._id))
-        const users = await User.find({ _id: { $in: usersId } })
-        const list = await Dm.find({ users: `${user._id}` })
-        const logs = Array.from(users, u => {
-            return {
-                username: u.username,
-                avatarURL: u.avatarURL,
-                _id: u._id,
-                tag: u.tag,
-                online: u.online
-            }
+            .populate("users")
+        const logs = dms.sort((a, b) => {
+            const timestampA = new Date(a.updatedAt || a.createdAt)
+            const timestampB = new Date(b.updatedAt || b.createdAt)
+            return timestampB.getTime() - timestampA.getTime()
         })
-            .sort((a, b) => {
-                const userA = list.find(dm => dm.users.includes(`${a._id}`))
-                const userB = list.find(dm => dm.users.includes(`${b._id}`))
-                const timestampA = new Date(userA.updatedAt || userA.createdAt)
-                const timestampB = new Date(userB.updatedAt || userB.createdAt)
-                return timestampB.getTime() - timestampA.getTime()
-            })
+            .map(dm => [createMember(dm.users[0]), createMember(dm.users[1])]).flat(1)
+            .filter(u => !user._id.equals(u._id))
         res.send(logs)
     })
 }

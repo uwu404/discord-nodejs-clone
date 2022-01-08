@@ -1,53 +1,17 @@
 const User = require("../../models/user")
-const Image = require("../../models/image")
-const sharp = require("sharp")
-const resize = require("gif-resizer")
-const sizeOf = require("image-size")
 const Server = require("../../models/server")
+const newAvatar = require("../../globalFunctions.js/createAvatar")
+const createMember = require("../../globalFunctions.js/createMember")
 
-function editavatar(app, io) {
+const editavatar = (app, io) => {
     app.patch("/user/edit", async (req, res) => {
         const user = await User.findOne({ token: req.headers.authorization })
 
-
-        const base64ex = /^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$/
         const base64str = req.body.data.split(",")[1]
-
-        const newAvatar = async () => {
-            if (req.body.data && base64ex.test(base64str)) {
-
-                const grabage = await Image.findOne({ name: `${user.avatarURL.split("/")[1]}` })
-                    .catch(err => console.log(err))
-
-                const buffer = Buffer.from(base64str, "base64")
-                const type = sizeOf(buffer).type
-
-                if (type !== "gif") {
-                    const icon = sharp(buffer)
-                    icon.webp({ quality: 50 })
-                    icon.resize(300, 300)
-                    const data = await icon.toBuffer()
-                    return await save(data, false)
-                } else {
-                    const gif = await resize(buffer, { width: 300, height: 300, colors: 256, optimize: 1 })
-                    return await save(gif, true)
-                }
-
-                async function save(data, dynamic) {
-                    const image = new Image({
-                        data,
-                        dynamic,
-                    })
-                    image.name = `${image._id}.webp`
-                    await image.save()
-                    grabage?.delete()
-                    return `images/${image._id}.webp`
-                }
-            } else return user.avatarURL
-        }
+        
         User.findByIdAndUpdate(user._id, {
             username: req.body.username || user.username,
-            avatarURL: await newAvatar(), 
+            avatarURL: await newAvatar(base64str, user, { width: 300, height: 300, quality: 80, lossy: false, optimize: 3 }), 
             profileColor: req.body.profileColor || user.profileColor
         }, { new: true })
             .then(async result => {
@@ -56,12 +20,7 @@ function editavatar(app, io) {
                 let rooms = io
                 for (const server of servers) rooms = rooms.to(`${server._id}`)
                 for (const friend of user.friends) rooms = rooms.to(friend)
-                rooms.emit("memberUpdate", {
-                    avatarURL: result.avatarURL,
-                    username: result.username,
-                    profileColor: result.profileColor,
-                    _id: result._id
-                })
+                rooms.emit("memberUpdate", createMember(result))
             })
     })
 }

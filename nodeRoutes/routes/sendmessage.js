@@ -7,6 +7,8 @@ const sharp = require("sharp")
 const sizeOf = require("image-size")
 const gifResize = require("gif-resizer")
 const mongoose = require("mongoose")
+const createMessage = require("../../globalFunctions.js/createMessage")
+const newAvatar = require("../../globalFunctions.js/createAvatar")
 
 function sendMessage(app, io) {
     app.post("/channels/:channel/messages", async (req, res) => {
@@ -16,11 +18,14 @@ function sendMessage(app, io) {
         const channel = await Channel.findById(req.params.channel)
         if (!user || !channel || (!req.body.content && !req.body.attachment)) return res.status(500).send("// cannot send an empty message")
         let invite = req.body.content?.match(/(^|\s)server\/.{7}(?=\s|$)/g)?.[0]
+        const base64str = req.body.attachment?.split(",")[1]
+        const attachment = await newAvatar(base64str, { attachment: true }, { quality: 60, lossy: true, optimize: 3 })
         const message = new Message({
             author: user._id,
             content: req.body.content,
             channel: req.params.channel,
-            timestamp: Date.now()
+            timestamp: Date.now(),
+            attachment
         })
         if (invite) {
             const server = await Server.findOne({ invites: invite.split("/")[1] })
@@ -28,54 +33,9 @@ function sendMessage(app, io) {
             invite = server
         }
 
-
-        const base64str = req.body.attachment?.split(",")[1]
-        const base64ex = /^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$/
-        if (!req.body.content && !base64ex.test(base64str)) return res.status(500).send("// cannot send an empty message")
-        if (base64str && base64ex.test(base64str)) {
-            const buffer = Buffer.from(base64str, "base64")
-            const size = sizeOf(buffer)
-
-            if (size.type !== "gif") {
-                const data = await sharp(buffer).webp({ quality: 60 }).toBuffer()
-                await save(data, false)
-            } else {
-                const gif = await gifResize(buffer, { lossy: 90, optimize: 3, colors: 150 })
-                await save(gif, true)
-            }
-
-            async function save(data, dynamic) {
-                const image = new Image({
-                    data,
-                    dynamic,
-                })
-
-                image.name = `${image._id}.webp`
-                await image.save()
-
-                message.attachment = {
-                    width: size.width,
-                    height: size.height,
-                    URL: `images/${image._id}.webp`
-                }
-            }
-        }
-
         message.save()
             .then(result => {
-                const msg = {
-                    invite,
-                    _id: result._id,
-                    content: result.content,
-                    timestamp: result.timestamp,
-                    channel: result.channel,
-                    attachment: {
-                        width: result.attachment?.width,
-                        height: result.attachment?.height,
-                        URL: result.attachment?.URL
-                    },
-                    author: { username: user.username, _id: user._id, avatarURL: user.avatarURL, tag: user.tag, online: user.online, profileColor: user.profileColor }
-                }
+                const msg = Object.assign(createMessage(result, user), { invite })
                 res.send(msg)
                 io.to(`${channel._id}`).emit("message", msg)
             })
