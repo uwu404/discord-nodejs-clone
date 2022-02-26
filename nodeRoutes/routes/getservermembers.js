@@ -1,7 +1,7 @@
 const User = require("../../models/user")
 const Server = require("../../models/server")
 const mongoose = require("mongoose")
-const createMember = require("../../globalFunctions.js/createMember")
+const createMember = require("../../globalFunctions/createMember")
 
 function getServerMembers(app) {
     app.get("/servers/:server/members", async (req, res) => {

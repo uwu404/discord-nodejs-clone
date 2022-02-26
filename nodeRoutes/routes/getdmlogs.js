@@ -1,6 +1,6 @@
 const User = require("../../models/user")
 const Dm = require("../../models/dms")
-const createMember = require("../../globalFunctions.js/createMember")
+const createMember = require("../../globalFunctions/createMember")
 
 const getDmslogs = app => {
     app.get("/dms/logs", async (req, res) => {

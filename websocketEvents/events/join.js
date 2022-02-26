@@ -8,7 +8,7 @@ function join(socket) {
         const user = await User.findOne({ token: args.Authorization }).catch(err => console.log(err))
         if (!mongoose.isValidObjectId(args.channel)) return
         const channel = await Channel.findById(args.channel)
-        const server = await Server.findById(channel.server)
+        const server = await Server.findOne({ _id: channel?.server })
         if (!user || !channel || !server || (!server.members.includes(`${user._id}`))) return
         socket.join(args.channel)
     })

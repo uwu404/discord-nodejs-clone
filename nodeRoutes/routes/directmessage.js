@@ -2,8 +2,8 @@ const User = require("../../models/user")
 const Dms = require("../../models/dms")
 const Server = require("../../models/server")
 const Message = require("../../models/message")
-const createMember = require("../../globalFunctions.js/createMember")
-const createMessage = require("../../globalFunctions.js/createMessage")
+const createMember = require("../../globalFunctions/createMember")
+const createMessage = require("../../globalFunctions/createMessage")
 
 function directMessage(app, io) {
     app.post("/dm/:user", async (req, res) => {
@@ -16,7 +16,7 @@ function directMessage(app, io) {
             content: req.body.content
         })
         const dm = await Dms.findOne({ users: { $all: [user._id, receiver._id] } }) || new Dms({ users: [user._id, receiver._id] })
-        let invite = req.body.content?.match(/(^|\s)server\/.{7}(?=\s|$)/g)?.[0]
+        let invite = req.body.content?.match(/(^|\s)server\/.{8}(?=\s|$)/g)?.[0]
         if (invite) {
             const server = await Server.findOne({ invites: invite.split("/")[1] })
             if (server) message.invite = server._id
@@ -25,8 +25,8 @@ function directMessage(app, io) {
         dm.messages.push(message._id)
         await dm.save()
         const msg = await message.save()
-        res.send(createMessage(msg))
-        io.to(`${user._id}`).to(`${receiver._id}`).emit("dm", createMessage(msg))
+        res.send(Object.assign(createMessage(msg), { invite }))
+        io.to(`${user._id}`).to(`${receiver._id}`).emit("dm", Object.assign(createMessage(msg, user), { invite }))
         receiver.notifications.push({
             type: "dm",
             id: `${user._id}`

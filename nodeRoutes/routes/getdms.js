@@ -1,7 +1,7 @@
 const User = require("../../models/user")
 const Dms = require("../../models/dms")
 const mongoose = require("mongoose")
-const createMessage = require("../../globalFunctions.js/createMessage")
+const createMessage = require("../../globalFunctions/createMessage")
 
 function getDirectMessages(app) {
     app.get("/dm/:user", async (req, res) => {

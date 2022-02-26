@@ -5,6 +5,7 @@ const messageSchema = new Schema({
     author: { type: Schema.Types.ObjectId, ref: "user" },
     content: String,
     channel: String, 
+    edited: Number,
     timestamp: Number,
     attachment: {
         width: Number,

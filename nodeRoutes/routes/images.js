@@ -1,11 +1,17 @@
 const Image = require("../../models/image")
-const sharp = require("sharp")
-const convertGif = require("../../gifTools")
+const resize = require("../../gifTools")
+const fs = require("node:fs")
 
 const images = (app) => {
     app.get("/images/:name", async (req, res) => {
-        const image = await Image.findOne({ name: req.params.name }).catch(err => console.log(err))
+        const image = req.params.name === "default" ?
+            { data: fs.readFileSync("./public/cat.webp") } :
+            await Image.findOne({ name: req.params.name }).catch(err => console.log(err))
         if (!image) return res.status(404).send("//404")
+        const height = parseInt(req.query.height)
+        const width = parseInt(req.query.width)
+        const format = req.query.format
+        const dynamic = req.query.dynamic !== "false"
 
         const send = (buffer) => {
             res.writeHead(200, {
@@ -16,16 +22,9 @@ const images = (app) => {
         }
 
         const img = image.data
-        if ((parseInt(req.query.height) || parseInt(req.query.width)) && !image.dynamic) {
-            const resizer = sharp(img)
-            if (req.query.height && req.query.width) resizer.resize(parseInt(req.query.width), parseInt(req.query.height))
-            else if (req.query.height) resizer.resize(null, parseInt(req.query.height))
-            else if (req.query.width) resizer.resize(parseInt(req.query.width))
-            return resizer.toBuffer().then(send)
-        }
-        if ((parseInt(req.query.height) || parseInt(req.query.width)) && image.dynamic) {
-            const gif = await convertGif(img, { format: "webp", width: req.query.width, height: req.query.height })
-            return send(gif)
+        if (width || height) {
+            const im = await resize(img, { format: format || "webp", width, height, dynamic })
+            return send(im)
         }
         send(img)
     })

@@ -9,7 +9,7 @@ function leaveServer(app, io) {
         if (!user || !server || server.owner == user._id) return res.status(500).send("error")
         if (!server.members.includes(user._id)) return res.status("500").send("error")
         const result = await Server.findByIdAndUpdate(server._id, {
-            members: server.members.filter(m => m != user._id)
+            members: server.members.filter(m =>  !user._id.equals(m))
         })
         res.send(result)
         io.to(`${user._id}`).emit("leave", server)

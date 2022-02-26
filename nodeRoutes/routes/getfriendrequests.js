@@ -1,5 +1,5 @@
 const User = require("../../models/user");
-const createMember = require("../../globalFunctions.js/createMember");
+const createMember = require("../../globalFunctions/createMember");
 
 function getFriendRequests(app) {
     app.get("/friends/pending", async (req, res) => {

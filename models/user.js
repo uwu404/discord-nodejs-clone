@@ -9,6 +9,8 @@ const userSchema = new Schema({
     password: String,
     token: String,
     online: Boolean,
+    status: String,
+    customStatus: String,
     friendRequests: [
         { 
             received: Boolean, 
@@ -23,7 +25,10 @@ const userSchema = new Schema({
             id: String
         }
     ],
-    profileColor: String
+    profileColor: String,
+    flags: {
+        hasDynamicAvatar: Boolean
+    }
 }, { typeKey: "$type" });
 
 const User = mongoose.model("user", userSchema);

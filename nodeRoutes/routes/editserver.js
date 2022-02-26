@@ -1,6 +1,6 @@
 const Server = require("../../models/server")
 const User = require("../../models/user")
-const newAvatar = require("../../globalFunctions.js/createAvatar")
+const newAvatar = require("../../globalFunctions/createAvatar")
 
 const editServer = (app, io) => {
     app.patch("/server/:server", async (req, res) => {
@@ -11,10 +11,11 @@ const editServer = (app, io) => {
         if (!server) return res.status(404).send("// 404 not found")
         if (!user._id.equals(server.owner)) return res.status(403).send('// 403 forbidden')
 
-        const base64str = req.body.icon.split(",")[1]
+        const base64str = req.body.icon?.split(",")[1]
+        const newIcon = await createImage(base64str, { width: 200, height: 200, quality: 90 })
         Server.findByIdAndUpdate(server._id, {
             name: req.body.name || server.name,
-            icon: await newAvatar(base64str, server, { width: 200, height: 200, optimize: 1, colors: 256, quality: 100 })
+            ...(newIcon && { icon: newIcon.URL })
         }, { new: true })
             .then(result => {
                 io.to(server._id + "").emit("serverUpdate", result)
