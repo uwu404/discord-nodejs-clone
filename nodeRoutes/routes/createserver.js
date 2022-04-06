@@ -20,7 +20,7 @@ function createserver(app) {
         const server = new Server({
             owner: user._id,
             name: req.body.name,
-            icon: icon.URL,
+            ...(icon && { icon: icon.URL }),
             members: [user._id],
             invites: [crypto.randomBytes(4).toString("hex")],
             channels: [channel._id],

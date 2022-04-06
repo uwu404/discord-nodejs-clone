@@ -18,7 +18,7 @@ $ pip install
 $ node .
 ```
 # Links
-https://discordbotyes.herokuapp.com/
+https://discordbotyes.herokuapp.com/app
 
 https://github.com/uwu404/discord-clone-client
 

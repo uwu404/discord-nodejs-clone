@@ -28,7 +28,7 @@ function personalSocket(socket, io) {
             if (sockets) return
             user.online = false
             rooms.emit("online", { user: user._id, online: false })
-            user.save()
+            await user.save() 
         })
     })
 }

@@ -9,7 +9,7 @@ const editMessage = (app, io) => {
         message.content = req.body.content.trim()
         await message.save()
         res.send(createMessage(message))
-        io.to(req.params.channel).to(`${message.author._id}`).emit("messageEdit", createMessage(message))
+        io.to(req.params.channel).to(`${message.author._id}`).emit("messageEdit", Object.assign(createMessage(message), { dmFor: [req.params.channels, message.author._id] }))
     })
 }
 

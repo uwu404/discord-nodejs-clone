@@ -19,7 +19,7 @@ function createUser(app) {
             presence: {
                 online: true
             },
-            notifications: []
+            notifications: [],
         })
 
         const result = await user.save()

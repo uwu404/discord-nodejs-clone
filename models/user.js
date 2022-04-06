@@ -26,9 +26,6 @@ const userSchema = new Schema({
         }
     ],
     profileColor: String,
-    flags: {
-        hasDynamicAvatar: Boolean
-    }
 }, { typeKey: "$type" });
 
 const User = mongoose.model("user", userSchema);

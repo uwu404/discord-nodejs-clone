@@ -11,7 +11,6 @@ const images = (app) => {
         const height = parseInt(req.query.height)
         const width = parseInt(req.query.width)
         const format = req.query.format
-        const dynamic = req.query.dynamic !== "false"
 
         const send = (buffer) => {
             res.writeHead(200, {
@@ -23,7 +22,7 @@ const images = (app) => {
 
         const img = image.data
         if (width || height) {
-            const im = await resize(img, { format: format || "webp", width, height, dynamic })
+            const im = await resize(img, { format: format || "webp", width, height })
             return send(im)
         }
         send(img)
