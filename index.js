@@ -22,7 +22,7 @@ app.use(cors())
 mongoose.connect(dburi, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false })
     .then(() => {
         console.log("connected to db")
-        routes(app, io)
+        routes(app)
         websocketEvents(io)
     })
     .catch(err => console.log(err))
@@ -30,3 +30,5 @@ mongoose.connect(dburi, { useNewUrlParser: true, useUnifiedTopology: true, useFi
 server.listen(PORT, () => {
     console.log(`live on ${PORT}`)
 })
+
+module.exports = { io }

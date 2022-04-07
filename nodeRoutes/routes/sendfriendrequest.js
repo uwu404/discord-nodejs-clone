@@ -1,7 +1,8 @@
 const User = require("../../models/user")
+const express = require("express")
+const router = express.Router()
 
-function sendFriendRequest(app) {
-    app.post("/users/:username&:tag/request", async (req, res) => {
+    router.post("/users/:username&:tag/request", async (req, res) => {
         const token = req.headers.authorization
         const user = await User.findOne({ token })
         const pending = await User.findOne({ username: req.params.username, tag: "#" + req.params.tag })
@@ -16,6 +17,5 @@ function sendFriendRequest(app) {
         const result = await user.save()
         res.send(result)
     })
-}
 
-module.exports = sendFriendRequest
+module.exports = router

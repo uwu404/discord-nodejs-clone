@@ -1,10 +1,10 @@
 const Channel = require("../../models/channel")
+const express = require("express")
+const router = express.Router()
 
-function getchannels(app) {
-    app.get("/servers/:server/channels", async (req, res) => {
-        const channels = await Channel.find({ server: req.params.server }).catch(err => console.log(err))
-        res.send(channels)
-    })
-}
+router.get("/servers/:server/channels", async (req, res) => {
+    const channels = await Channel.find({ server: req.params.server }).catch(err => console.log(err))
+    res.send(channels)
+})
 
-module.exports = getchannels
+module.exports = router

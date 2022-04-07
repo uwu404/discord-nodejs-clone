@@ -1,10 +1,10 @@
 const Server = require("../../models/server")
+const express = require("express")
+const router = express.Router()
 
-function getServer(app) {
-    app.get("/servers/:invite", async (req, res) => {
-        const server = await Server.findOne({ invites: req.params.invite })
-        res.send(server)
-    })
-}
+router.get("/servers/:invite", async (req, res) => {
+    const server = await Server.findOne({ invites: req.params.invite })
+    res.send(server)
+})
 
-module.exports = getServer
+module.exports = router
