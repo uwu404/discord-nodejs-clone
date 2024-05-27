@@ -1,12 +1,13 @@
 const Server = require("../../models/server")
 const User = require("../../models/user")
-const newAvatar = require("../../globalFunctions/createAvatar")
+const createImage = require("../../globalFunctions/createimage")
 const express = require("express")
 const router = express.Router()
 const { io } = require("../../")
+const authenticateToken = require("../../globalFunctions/authenticateToken")
 
-router.patch("/server/:server", async (req, res) => {
-    const user = await User.findOne({ token: req.headers.authorization })
+router.patch("/servers/:server", authenticateToken, async (req, res) => {
+    const user = await User.findById(req.user._id)
     const server = await Server.findById(req.params.server).catch(console.log)
 
     if (!user) return res.status(401).send('// 401 unauthorized')
@@ -20,7 +21,8 @@ router.patch("/server/:server", async (req, res) => {
         ...(newIcon && { icon: newIcon.URL })
     }, { new: true })
         .then(result => {
-            io.to(server._id + "").emit("serverUpdate", result)
+            res.send(result.toObject())
+            io.to(server._id + "").emit("serverUpdate", result.toObject())
         })
 })
 

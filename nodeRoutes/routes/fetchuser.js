@@ -1,8 +1,9 @@
+const authenticateToken = require("../../globalFunctions/authenticateToken")
 const User = require("../../models/user")
 const express = require("express")
 const router = express.Router()
 
-router.get("/fetch/:user", async (req, res) => {
+router.get("/fetch/:user", authenticateToken, async (req, res) => {
     const user = await User.findById(req.params.user)
     if (!user) return res.status(500).send("error")
     const data = {

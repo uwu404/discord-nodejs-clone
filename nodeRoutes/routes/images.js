@@ -1,5 +1,5 @@
 const Image = require("../../models/image")
-const resize = require("../../gifTools")
+const resize = require("../../imageResizer")
 const fs = require("node:fs")
 const express = require("express")
 const router = express.Router()
@@ -16,9 +16,10 @@ router.get("/images/:name", async (req, res) => {
     const send = (buffer) => {
         res.writeHead(200, {
             'Content-Type': 'image/webp',
-            'Content-Length': buffer.length
-        });
-        res.end(buffer);
+            'Content-Length': buffer.length,
+            "Cache-Control": "public, max-age=31557600"
+        })
+        res.end(buffer)
     }
 
     const img = image.data

@@ -1,10 +1,11 @@
+const authenticateToken = require("../../globalFunctions/authenticateToken")
 const User = require("../../models/user")
 const express = require("express")
 const router = express.Router()
 
-    router.post("/users/:username&:tag/request", async (req, res) => {
+    router.post("/users/:username&:tag/request", authenticateToken, async (req, res) => {
         const token = req.headers.authorization
-        const user = await User.findOne({ token })
+        const user = await User.findById(req.user._id)
         const pending = await User.findOne({ username: req.params.username, tag: "#" + req.params.tag })
         if (!user) return res.status(401).send({ error: "Invalid token" })
         if (!pending) return res.status(401).send({ error: "Cannot find this user" })

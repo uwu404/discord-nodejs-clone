@@ -1,7 +1,8 @@
-const createMember = ({ username, _id, avatarURL, online, tag, profileColor, flags, customStatus }, add) => {
-    return {
-        username, _id, avatarURL, online, tag, profileColor, flags, customStatus, ...add
-    }
+const isOnline = require("./isOnline")
+
+// removes private credentials from a user
+const createMember = (user) => {
+    return { ...user.toObject(), password: null, email: null, friends: null, status: isOnline(user._id.toString()) ? user.status : "offline" }
 }
 
 module.exports = createMember

@@ -2,14 +2,16 @@ const User = require("../../models/user")
 const Channel = require("../../models/channel")
 const Server = require("../../models/server")
 const mongoose = require("mongoose")
+const { Socket } = require("socket.io")
 
-function join(socket) {
-    socket.on("join", async args => {
-        const user = await User.findOne({ token: args.Authorization }).catch(err => console.log(err))
+/** @param {Socket} socket */
+const join = socket => {
+    socket.on("join", async (args) => {
+        const user = await User.findById(socket.ultraId).catch(err => console.log(err))
         if (!mongoose.isValidObjectId(args.channel)) return
         const channel = await Channel.findById(args.channel)
-        const server = await Server.findOne({ _id: channel?.server })
-        if (!user || !channel || !server || (!server.members.includes(`${user._id}`))) return
+        const server = await Server.findById(channel.server)
+        if (!server.members.some(member => member.equals(user._id))) return
         socket.join(args.channel)
     })
 }

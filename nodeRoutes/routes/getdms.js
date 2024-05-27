@@ -1,12 +1,13 @@
 const User = require("../../models/user")
 const Dms = require("../../models/dms")
 const mongoose = require("mongoose")
-const createMessage = require("../../globalFunctions/createMessage")
 const express = require("express")
+const createMember = require("../../globalFunctions/createmember")
+const authenticateToken = require("../../globalFunctions/authenticateToken")
 const router = express.Router()
 
-router.get("/dm/:user", async (req, res) => {
-    const user = await User.findOne({ token: req.headers.authorization })
+router.get("/dm/:user", authenticateToken, async (req, res) => {
+    const user = await User.findById(req.user._id)
     if (!mongoose.isValidObjectId(req.params.user)) return res.status(500).send("oops something went wrong")
     const reciever = await User.findById(req.params.user)
     if (!user || !reciever) return res.status(500).send("oops something went wrong")
@@ -18,7 +19,7 @@ router.get("/dm/:user", async (req, res) => {
             users: [user._id, reciever._id],
             messages: []
         })
-    const result = dm.messages.map(createMessage)
+    const result = dm.messages.map(m => ({ ...m.toObject(), author: createMember(m.author) }))
     res.send(result)
 })
 

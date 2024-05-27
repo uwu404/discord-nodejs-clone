@@ -1,6 +1,6 @@
 const Image = require("../models/image")
 const sizeOf = require("image-size")
-const resize = require("../gifTools")
+const resize = require("../imageResizer")
 
 const save = async (data, size) => {
     const image = new Image({ data })
@@ -20,7 +20,7 @@ const isBase64 = (str) => {
     return buffer.toString("base64") === str
 }
 
-const createImage = async (data, options) => {
+const createImage = async (data, options = {}) => {
     if (!isBase64(data)) return null
 
     const buffer = Buffer.from(data, "base64")
@@ -29,11 +29,14 @@ const createImage = async (data, options) => {
     const lim = (options.width > min || options.height > min) && min
 
     const image = await resize(buffer, {
-        format: "webp",
+        format: options.format,
         width: lim || options.width,
         height: lim || options.height,
         quality: options.quality
     })
+
+    if (!image) return null
+    
     return await save(image, size)
 }
 

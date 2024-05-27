@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+const mongoose = require("mongoose")
+const Schema = mongoose.Schema
 
 const messageSchema = new Schema({
     author: { type: Schema.Types.ObjectId, ref: "user" },
@@ -7,14 +7,16 @@ const messageSchema = new Schema({
     channel: String, 
     edited: Number,
     timestamp: Number,
-    attachment: {
+    attachments: [{
         width: Number,
         height: Number,
-        URL: String
-    },
+        URL: String,
+        spoiler: Boolean,
+        id: String
+    }],
     invite: { type: Schema.Types.ObjectId, ref: "server" }
-}, { timestamps: true });
+}, { timestamps: true })
 
-const Message = mongoose.model("message", messageSchema);
+const Message = mongoose.model("message", messageSchema)
 
 module.exports = Message

@@ -7,9 +7,12 @@ const userSchema = new Schema({
     tag: String,
     email: String,
     password: String,
-    token: String,
     online: Boolean,
-    status: String,
+    status: { 
+        $type: String, 
+        default: "online", 
+        enum: ["online", "dnd", "idle", "offline"] 
+    },
     customStatus: String,
     friendRequests: [
         { 
@@ -18,7 +21,6 @@ const userSchema = new Schema({
         }
     ],
     friends: [{ $type: Schema.Types.ObjectId, ref: "user" }],
-    directMessages: [String],
     notifications: [
         {
             type: String,
@@ -26,7 +28,10 @@ const userSchema = new Schema({
         }
     ],
     profileColor: String,
-}, { typeKey: "$type" });
+    lastCreatedServer: Date,
+    about: String,
+    muted: Boolean
+}, { typeKey: "$type", timestamps: true });
 
 const User = mongoose.model("user", userSchema);
 
